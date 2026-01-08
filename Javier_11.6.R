@@ -59,13 +59,13 @@ bmass$treatment<-as.factor(bmass$treatment)
 levels(bmass$treatment) <- c("Daily", "Pulsed")
 bmass<-as.data.frame(bmass)
 
-#create a mortality column in the biomass file
-bmass$mort<-bmass$root.shoot
-bmass$mort[is.na(bmass$mort)] <- 0
-bmass$mort[bmass$mort > 0] <- 1 
-bmass<-within(bmass, population<-relevel(population, ref=4))
+#create a mortality column in the height file
+height$mort<-height$height_cm_42
+height$mort[is.na(height$mort)] <- 0
+height$mort[height$mort > 0] <- 1 
+#height<-within(height, population<-relevel(population, ref=4))
 
-mort.by.treat<-aggregate(mort ~ treatment + population, data =bmass, FUN = sum)
+mort.by.treat<-aggregate(mort ~ treatment + population, data =height, FUN = sum)
 mort.table<-flextable(data=mort.by.treat %>% rownames_to_column("Mortality"))
 mort.table <- set_header_labels(mort.table, treatment = "Treatment", population="Population", mort="Surviving")
 mort.table
@@ -85,12 +85,13 @@ hist(log(bmass.daily$root.shoot))#this is much less skewed
 hist(bmass.daily$total)
 
 ############Mortality
-mortality.out<-glm(mort~population*treatment, family="binomial"(link="logit"), data=bmass)
+mortality.out<-glm(mort~population*treatment, family="binomial"(link="logit"), data=height)
 summary(mortality.out)###No significant effect of treatments..combine to look at pops
 
-mortality.out.all<-glm(mort~population, family="binomial"(link="logit"), data=bmass)
+mortality.out.all<-glm(mort~population, family="binomial"(link="logit"), data=height)
 summary(mortality.out.all)
 
+tbl_regression(mortality.out)
 
 #Need to create mort graph
 
